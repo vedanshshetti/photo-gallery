@@ -2,6 +2,7 @@
 
 import { UnsplashPhoto } from "@/types/unsplash";
 import Image from "next/image";
+import { useTranslations } from "@/i18n/useTranslations";
 
 interface PhotoCardProps {
   photo: UnsplashPhoto;
@@ -9,14 +10,20 @@ interface PhotoCardProps {
 }
 
 export default function PhotoCard({ photo, onClick }: PhotoCardProps) {
+  const { t } = useTranslations();
+  const label =
+    photo.alt_description || photo.description || t("labels.photoFallback");
+
   return (
-    <div
-      className="group relative cursor-pointer overflow-hidden rounded-xl bg-gray-100 shadow-sm"
+    <button
+      type="button"
+      className="group relative w-full text-left cursor-pointer overflow-hidden rounded-xl bg-[color:var(--surface-color)] shadow-sm border border-transparent hover:border-[color:var(--border-color)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-color)] transition"
       onClick={onClick}
+      aria-label={label}
     >
       <Image
         src={photo.urls.small}
-        alt={photo.alt_description || photo.description || "Unsplash Photo"}
+        alt={label}
         width={photo.width}
         height={photo.height}
         unoptimized
@@ -31,6 +38,6 @@ export default function PhotoCard({ photo, onClick }: PhotoCardProps) {
           {photo.user.name}
         </div>
       </div>
-    </div>
+    </button>
   );
 }

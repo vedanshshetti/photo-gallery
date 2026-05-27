@@ -5,21 +5,24 @@ import { UnsplashPhoto } from "@/types/unsplash";
 import PhotoGrid from "./PhotoGrid";
 import SearchBar from "./SearchBar";
 import FilterBar from "./FilterBar";
+import { useTranslations } from "@/i18n/useTranslations";
 
 export default function PhotoGallery() {
+  const { t } = useTranslations();
   const [allPhotos, setAllPhotos] = useState<UnsplashPhoto[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(false);
 
   // Filters State
   const [query, setQuery] = useState("");
+  const [draftQuery, setDraftQuery] = useState("");
   const [orientation, setOrientation] = useState("");
   const [color, setColor] = useState("");
   const [orderBy, setOrderBy] = useState("latest");
 
   const fetchPhotos = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setError(false);
 
     try {
       const params = new URLSearchParams();
@@ -31,8 +34,8 @@ export default function PhotoGallery() {
 
       const data = await res.json();
       setAllPhotos(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch {
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -41,6 +44,27 @@ export default function PhotoGallery() {
   useEffect(() => {
     fetchPhotos();
   }, [fetchPhotos]);
+
+  const handleSearch = useCallback(() => {
+    setQuery(draftQuery);
+  }, [draftQuery]);
+
+  const handleClearSearch = useCallback(() => {
+    setDraftQuery("");
+    setQuery("");
+  }, []);
+
+  const handleResetFilters = useCallback(() => {
+    setDraftQuery("");
+    setQuery("");
+    setOrientation("");
+    setColor("");
+    setOrderBy("latest");
+  }, []);
+
+  const hasFilters = Boolean(
+    draftQuery || query || orientation || color || orderBy !== "latest",
+  );
 
   const filteredPhotos = useMemo(() => {
     return allPhotos.filter((photo) => {
@@ -73,7 +97,12 @@ export default function PhotoGallery() {
   return (
     <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <SearchBar query={query} setQuery={setQuery} />
+        <SearchBar
+          value={draftQuery}
+          onChange={setDraftQuery}
+          onSubmit={handleSearch}
+          onClear={handleClearSearch}
+        />
         
         <FilterBar
           orientation={orientation}
@@ -82,23 +111,43 @@ export default function PhotoGallery() {
           setColor={setColor}
           orderBy={orderBy}
           setOrderBy={setOrderBy}
+          hasFilters={hasFilters}
+          onReset={handleResetFilters}
         />
       </div>
       
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-        <span>Showing @vedanshshetti's portfolio only.</span>
+      <div className="flex flex-col gap-1 text-sm text-[color:var(--muted-text-color)] mb-2">
+        <span>{t("status.portfolioOnly", { name: "@vedanshshetti" })}</span>
+        {!loading && !error && (
+          <span>
+            {t("status.results", {
+              shown: filteredPhotos.length,
+              total: allPhotos.length,
+            })}
+          </span>
+        )}
       </div>
 
       {error ? (
-        <div className="text-red-500 text-center py-8">{error}</div>
+        <div className="text-red-500 text-center py-8">
+          {t("errors.fetchPhotos")}
+        </div>
       ) : loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse">
+          <span className="sr-only" role="status">
+            {t("status.loading")}
+          </span>
           {[...Array(12)].map((_, i) => (
-            <div key={i} className="bg-gray-200 h-64 w-full rounded-lg"></div>
+            <div
+              key={i}
+              className="bg-[color:var(--surface-strong)] h-64 w-full rounded-lg"
+            ></div>
           ))}
         </div>
       ) : filteredPhotos.length === 0 ? (
-        <div className="text-gray-500 text-center py-8">No photos found matching your criteria.</div>
+        <div className="text-[color:var(--muted-text-color)] text-center py-8">
+          {t("status.noResults")}
+        </div>
       ) : (
         <PhotoGrid photos={filteredPhotos} />
       )}

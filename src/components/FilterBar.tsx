@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "@/i18n/useTranslations";
+
 interface FilterBarProps {
   orientation: string;
   setOrientation: (v: string) => void;
@@ -7,6 +9,8 @@ interface FilterBarProps {
   setColor: (v: string) => void;
   orderBy: string;
   setOrderBy: (v: string) => void;
+  hasFilters: boolean;
+  onReset: () => void;
 }
 
 export default function FilterBar({
@@ -16,47 +20,64 @@ export default function FilterBar({
   setColor,
   orderBy,
   setOrderBy,
+  hasFilters,
+  onReset,
 }: FilterBarProps) {
+  const { t } = useTranslations();
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       <select
-        className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-black focus:border-black outline-none bg-white text-black"
+        className="px-3 py-2 text-sm border border-[color:var(--border-color)] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-color)] bg-[color:var(--surface-color)] text-[color:var(--text-color)]"
         value={orientation}
         onChange={(e) => setOrientation(e.target.value)}
+        aria-label={t("labels.orientation")}
       >
-        <option value="">Any Orientation</option>
-        <option value="landscape">Landscape</option>
-        <option value="portrait">Portrait</option>
-        <option value="squarish">Square</option>
+        <option value="">{t("filters.orientation.any")}</option>
+        <option value="landscape">{t("filters.orientation.landscape")}</option>
+        <option value="portrait">{t("filters.orientation.portrait")}</option>
+        <option value="squarish">{t("filters.orientation.square")}</option>
       </select>
 
       <select
-        className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-black focus:border-black outline-none bg-white text-black"
+        className="px-3 py-2 text-sm border border-[color:var(--border-color)] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-color)] bg-[color:var(--surface-color)] text-[color:var(--text-color)]"
         value={color}
         onChange={(e) => setColor(e.target.value)}
+        aria-label={t("labels.color")}
       >
-        <option value="">Any Color</option>
-        <option value="black_and_white">B&W</option>
-        <option value="black">Black</option>
-        <option value="white">White</option>
-        <option value="yellow">Yellow</option>
-        <option value="orange">Orange</option>
-        <option value="red">Red</option>
-        <option value="purple">Purple</option>
-        <option value="magenta">Magenta</option>
-        <option value="green">Green</option>
-        <option value="teal">Teal</option>
-        <option value="blue">Blue</option>
+        <option value="">{t("filters.color.any")}</option>
+        <option value="black_and_white">{t("filters.color.black_and_white")}</option>
+        <option value="black">{t("filters.color.black")}</option>
+        <option value="white">{t("filters.color.white")}</option>
+        <option value="yellow">{t("filters.color.yellow")}</option>
+        <option value="orange">{t("filters.color.orange")}</option>
+        <option value="red">{t("filters.color.red")}</option>
+        <option value="purple">{t("filters.color.purple")}</option>
+        <option value="magenta">{t("filters.color.magenta")}</option>
+        <option value="green">{t("filters.color.green")}</option>
+        <option value="teal">{t("filters.color.teal")}</option>
+        <option value="blue">{t("filters.color.blue")}</option>
       </select>
 
       <select
-        className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-black focus:border-black outline-none bg-white text-black"
+        className="px-3 py-2 text-sm border border-[color:var(--border-color)] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-color)] bg-[color:var(--surface-color)] text-[color:var(--text-color)]"
         value={orderBy}
         onChange={(e) => setOrderBy(e.target.value)}
+        aria-label={t("labels.sort")}
       >
-        <option value="relevant">Relevant</option>
-        <option value="latest">Latest</option>
+        <option value="relevant">{t("filters.sort.relevant")}</option>
+        <option value="latest">{t("filters.sort.latest")}</option>
       </select>
+
+      {hasFilters && (
+        <button
+          type="button"
+          onClick={onReset}
+          className="px-3 py-2 text-sm border border-[color:var(--border-color)] rounded-lg text-[color:var(--text-color)] hover:bg-[color:var(--surface-strong)] transition"
+        >
+          {t("filters.reset")}
+        </button>
+      )}
     </div>
   );
 }
