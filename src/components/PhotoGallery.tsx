@@ -42,6 +42,7 @@ export default function PhotoGallery() {
   }, [orderBy]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPhotos();
   }, [fetchPhotos]);
 
